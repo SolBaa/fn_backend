@@ -1,27 +1,14 @@
 package database
 
 import (
-	"fmt"
-
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
-
-func Connect(dbString string) *gorm.DB {
-	connectionString := dbString
-
-	db, err := gorm.Open("postgres", connectionString)
+func Connect(connectionString string) (*gorm.DB, error) {
+	db, err := gorm.Open(postgres.Open(connectionString), &gorm.Config{})
 	if err != nil {
-		panic("Error al conectar a la base de datos: " + err.Error())
-	} else {
-		fmt.Println("Conectado a la base de datos")
+		return nil, err
 	}
-
-	DB = db
-
-	// Opcional: Configurar opciones de GORM
-	DB.LogMode(true) // Habilitar registros SQL
-	return DB
+	return db, nil
 }

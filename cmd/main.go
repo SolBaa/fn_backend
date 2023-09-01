@@ -6,10 +6,11 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/SolBaa/finances-backend/cmd/api/router"
-	database "github.com/SolBaa/finances-backend/internal/db"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	"github.com/SolBaa/recipes-backend/cmd/api/handler"
+	"github.com/SolBaa/recipes-backend/cmd/api/router"
+	database "github.com/SolBaa/recipes-backend/internal/db"
+	"github.com/SolBaa/recipes-backend/internal/repository"
+	"github.com/SolBaa/recipes-backend/internal/service"
 	"github.com/joho/godotenv"
 )
 
@@ -31,13 +32,18 @@ func main() {
 	)
 
 	dbConfig = fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", DBHost, DBPort, DBUser, DBName, DBPassword)
-	db := database.Connect(dbConfig)
-
+	db, err := database.Connect(dbConfig)
+	if err != nil {
+		log.Fatal("Error Connecting to DB")
+	}
+	fmt.Println(db)
 	// create router
-	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-	router := router.NewRouter(r, db)
-	router.MapRoutes()
+	// r := chi.NewRouter()
+	userRepository := repository.NewUserRepository(db)
+	userService := service.NewService(userRepository)
+	userHandler := handler.NewUser(userService)
+	app := router.NewRouter(db, userHandler)
+	r := app.InitializeRoutes()
 	http.ListenAndServe(":8000", r)
 
 }

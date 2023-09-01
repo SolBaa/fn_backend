@@ -1,33 +1,29 @@
 package router
 
 import (
-	"github.com/SolBaa/finances-backend/cmd/api/handler"
+	"net/http"
+
+	"github.com/SolBaa/recipes-backend/cmd/api/handler"
 	"github.com/go-chi/chi/v5"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
-type Router interface {
-	MapRoutes()
+type App struct {
+	db          *gorm.DB
+	userHandler *handler.User
 }
 
-type router struct {
-	r  chi.Router
-	db *gorm.DB
+func NewRouter(db *gorm.DB, userHandler *handler.User) *App {
+	return &App{db: db, userHandler: userHandler}
 }
 
-func NewRouter(r chi.Router, db *gorm.DB) Router {
-	return &router{r: r, db: db}
-}
+func (a *App) InitializeRoutes() http.Handler {
+	r := chi.NewRouter()
 
-func (r *router) MapRoutes() {
-	r.UsersRoutes()
-	// r.buildProductRoutes()
-	// r.buildSectionRoutes()
-	// r.buildWarehouseRoutes()
-	// r.buildEmployeeRoutes()
-	// r.buildBuyerRoutes()
-}
+	// Rutas relacionadas con usuarios
+	r.Mount("/users", a.userHandler.Routes())
 
-func (r *router) UsersRoutes() {
-	r.r.Get("/users", handler.GetUsers(r.db))
+	// Agregar más rutas aquí
+
+	return r
 }

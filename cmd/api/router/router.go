@@ -9,12 +9,13 @@ import (
 )
 
 type App struct {
-	db          *gorm.DB
-	userHandler *handler.User
+	db             *gorm.DB
+	userHandler    *handler.User
+	recipesHandler *handler.Recipe
 }
 
-func NewRouter(db *gorm.DB, userHandler *handler.User) *App {
-	return &App{db: db, userHandler: userHandler}
+func NewRouter(db *gorm.DB, uh *handler.User, rh *handler.Recipe) *App {
+	return &App{db: db, userHandler: uh, recipesHandler: rh}
 }
 
 func (a *App) InitializeRoutes() http.Handler {
@@ -22,6 +23,7 @@ func (a *App) InitializeRoutes() http.Handler {
 
 	// Rutas relacionadas con usuarios
 	r.Mount("/users", a.userHandler.Routes())
+	r.Mount("/recipes", a.userHandler.Routes())
 
 	// Agregar más rutas aquí
 

@@ -42,7 +42,10 @@ func main() {
 	userRepository := repository.NewUserRepository(db)
 	userService := service.NewService(userRepository)
 	userHandler := handler.NewUser(userService)
-	app := router.NewRouter(db, userHandler)
+	recipeRepository := repository.NewRecipeRepository(db)
+	recipesService := service.NewRecipeService(recipeRepository)
+	recipeHandler := handler.NewRecipe(recipesService)
+	app := router.NewRouter(db, userHandler, recipeHandler)
 	r := app.InitializeRoutes()
 	http.ListenAndServe(":8000", r)
 
